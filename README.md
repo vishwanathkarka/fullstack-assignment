@@ -3,7 +3,7 @@
 Accepts transaction webhooks, returns `202` right away, and processes each
 transaction in the background (30s simulated delay). Data is stored in MySQL.
 
-Live: http://157.173.222.179:8090
+Live: https://webhook.vishwanathkarka.com
 
 ## Endpoints
 
@@ -45,6 +45,7 @@ waits for processing:
 
 ```bash
 python scripts/smoke_test.py http://localhost:8000
+python scripts/smoke_test.py https://webhook.vishwanathkarka.com
 ```
 
 ## Technical choices
@@ -53,4 +54,4 @@ python scripts/smoke_test.py http://localhost:8000
 - **The webhook only inserts a row and returns.** Processing happens in a background worker inside the same app, so the response stays fast.
 - **Duplicates** are handled by making `transaction_id` the primary key. A second insert fails with a duplicate key error and is ignored.
 - **The table is also the queue.** The worker claims rows with `SELECT ... FOR UPDATE SKIP LOCKED` and sets a `locked_until` time. If the app crashes mid-processing, the row is picked up again after restart, so nothing is lost. I didn't use Redis/Celery to keep it to one service.
-- **Deployed** with Docker on a VPS using the MySQL server on that machine.
+- **Deployed** with Docker Compose on a VPS (API + MySQL containers, MySQL data on a volume), behind nginx and Cloudflare.
