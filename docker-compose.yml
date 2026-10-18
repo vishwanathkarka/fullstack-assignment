@@ -1,0 +1,23 @@
+# Local development: API + its own MySQL.
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: transactions
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -uroot -proot --silent"]
+      interval: 3s
+      retries: 20
+
+  api:
+    build: .
+    environment:
+      DATABASE_URL: mysql://root:root@db:3306/transactions
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy

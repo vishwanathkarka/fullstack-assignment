@@ -1,0 +1,11 @@
+# uses the MySQL server already running on the host
+name: txn-webhooks
+
+services:
+  api:
+    build: .
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?set DATABASE_URL in .env}
+      PORT: ${API_PORT:-8090}
